@@ -574,8 +574,14 @@ input:focus, select:focus {
 
 
 .workspace-page-card.active {
-  box-shadow: 0 0 0 3px var(--brand-primary), 0 20px 30px -10px rgba(0,0,0,0.5);
-  transform: scale(1.005);
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.6);
+  transform: scale(1.002);
+}
+
+/* Prevent text selection on app chrome elements */
+.sidebar-panel-header, .sidebar-tab-strip-left, .ribbon-tabs-bar, .app-banner {
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .workspace-canvas-element {

@@ -51,6 +51,76 @@ export default function App() {
   const [pageOrder, setPageOrder] = useState<number[]>([]);
   const [blankPagesMap, setBlankPagesMap] = useState<Record<number, { width: number; height: number }>>({});
 
+  // History State for Undo/Redo
+  interface HistoryState {
+    pageOrder: number[];
+    annotations: AnnotationItem[];
+    pageRotations: Record<number, number>;
+    blankPagesMap: Record<number, { width: number; height: number }>;
+  }
+  const [undoStack, setUndoStack] = useState<HistoryState[]>([]);
+  const [redoStack, setRedoStack] = useState<HistoryState[]>([]);
+
+  const saveHistory = (
+    customPageOrder?: number[],
+    customAnnotations?: AnnotationItem[],
+    customPageRotations?: Record<number, number>,
+    customBlankPagesMap?: Record<number, { width: number; height: number }>
+  ) => {
+    const stateToSave: HistoryState = {
+      pageOrder: [...(customPageOrder || pageOrder)],
+      annotations: JSON.parse(JSON.stringify(customAnnotations || annotations)),
+      pageRotations: { ...(customPageRotations || pageRotations) },
+      blankPagesMap: { ...(customBlankPagesMap || blankPagesMap) }
+    };
+    setUndoStack(prev => [...prev, stateToSave]);
+    setRedoStack([]); // Clear redo stack on new action
+  };
+
+  const handleUndo = () => {
+    if (undoStack.length === 0) return;
+    const prevState = undoStack[undoStack.length - 1];
+    
+    const currentState: HistoryState = {
+      pageOrder: [...pageOrder],
+      annotations: JSON.parse(JSON.stringify(annotations)),
+      pageRotations: { ...pageRotations },
+      blankPagesMap: { ...blankPagesMap }
+    };
+    setRedoStack(prev => [...prev, currentState]);
+    
+    setPageOrder(prevState.pageOrder);
+    setAnnotations(prevState.annotations);
+    setPageRotations(prevState.pageRotations);
+    setBlankPagesMap(prevState.blankPagesMap);
+    setUndoStack(prev => prev.slice(0, -1));
+    
+    addLog(locale === 'th' ? 'ย้อนกลับการกระทำ' : 'Undid last action');
+    setStatusLog(locale === 'th' ? 'ย้อนกลับสำเร็จ' : 'Undid last action');
+  };
+
+  const handleRedo = () => {
+    if (redoStack.length === 0) return;
+    const nextState = redoStack[redoStack.length - 1];
+    
+    const currentState: HistoryState = {
+      pageOrder: [...pageOrder],
+      annotations: JSON.parse(JSON.stringify(annotations)),
+      pageRotations: { ...pageRotations },
+      blankPagesMap: { ...blankPagesMap }
+    };
+    setUndoStack(prev => [...prev, currentState]);
+    
+    setPageOrder(nextState.pageOrder);
+    setAnnotations(nextState.annotations);
+    setPageRotations(nextState.pageRotations);
+    setBlankPagesMap(nextState.blankPagesMap);
+    setRedoStack(prev => prev.slice(0, -1));
+    
+    addLog(locale === 'th' ? 'ทำซ้ำการกระทำ' : 'Redid last action');
+    setStatusLog(locale === 'th' ? 'ทำซ้ำสำเร็จ' : 'Redid last action');
+  };
+
   // Interactive drawing states
   const [isDrawing, setIsDrawing] = useState(false);
   const [drawPoints, setDrawPoints] = useState<{ x: number; y: number }[]>([]);
@@ -213,6 +283,7 @@ export default function App() {
     const targetOrigIdx = pageOrder[activePagePos];
     if (targetOrigIdx < 0) return; // Cannot rotate blank pages visually
 
+    saveHistory();
     setPageRotations(prev => {
       const current = prev[targetOrigIdx] || 0;
       const change = direction === 'right' ? 90 : -90;
@@ -225,6 +296,7 @@ export default function App() {
   const handleDeletePage = () => {
     if (pdfInfo === null || pageOrder.length === 0) return;
     if (window.confirm(locale === 'th' ? `คุณแน่ใจหรือไม่ว่าต้องการลบหน้า ${activePagePos + 1}?` : `Are you sure you want to delete page ${activePagePos + 1}?`)) {
+      saveHistory();
       setPageOrder(prev => prev.filter((_, idx) => idx !== activePagePos));
       addLog(locale === 'th' ? `ลบหน้า ${activePagePos + 1}` : `Deleted page ${activePagePos + 1}`);
       
@@ -239,6 +311,7 @@ export default function App() {
 
   const handleAddBlankPage = () => {
     if (pdfInfo === null) return;
+    saveHistory();
     // Generate a unique negative ID for this blank page to distinguish it
     const newBlankId = -1 * (Object.keys(blankPagesMap).length + 1);
     setBlankPagesMap(prev => ({
@@ -259,6 +332,7 @@ export default function App() {
 
   const handleReversePages = () => {
     if (pageOrder.length < 2) return;
+    saveHistory();
     setPageOrder(prev => [...prev].reverse());
     addLog(locale === 'th' ? 'กลับลำดับหน้ากระดาษทั้งหมด' : 'Reversed page order');
     setStatusLog(locale === 'th' ? 'กลับลำดับหน้าสำเร็จ' : 'Page order reversed');
@@ -334,6 +408,7 @@ export default function App() {
     if (activeTool === 'text') {
       const textVal = prompt(locale === 'th' ? 'ป้อนข้อความ:' : 'Enter text:');
       if (textVal) {
+        saveHistory();
         const newAnn: AnnotationItem = {
           id: Math.random().toString(),
           type: 'text',
@@ -357,6 +432,7 @@ export default function App() {
         setShowSignatureModal(true);
         return;
       }
+      saveHistory();
       const newAnn: AnnotationItem = {
         id: Math.random().toString(),
         type: 'signature',
@@ -446,6 +522,7 @@ export default function App() {
       points: currentDragAnn.points
     };
 
+    saveHistory();
     setAnnotations(prev => [...prev, finalized]);
     addLog(locale === 'th' ? `วาดรูปทรง ${finalized.type.toUpperCase()}` : `Drew shape annotation: ${finalized.type}`);
     setCurrentDragAnn(null);
@@ -696,11 +773,11 @@ export default function App() {
             {/* GROUP: ประวัติ */}
             <div className="shelf-group">
               <div className="shelf-buttons">
-                <button className="shelf-btn" disabled title={locale === 'th' ? 'ย้อนกลับ (เร็วๆ นี้)' : 'Undo (soon)'}>
+                <button className="shelf-btn" onClick={handleUndo} disabled={undoStack.length === 0} title={locale === 'th' ? 'ย้อนกลับ' : 'Undo'}>
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
                   <span>{locale === 'th' ? 'ย้อนกลับ' : 'Undo'}</span>
                 </button>
-                <button className="shelf-btn" disabled title={locale === 'th' ? 'ทำซ้ำ (เร็วๆ นี้)' : 'Redo (soon)'}>
+                <button className="shelf-btn" onClick={handleRedo} disabled={redoStack.length === 0} title={locale === 'th' ? 'ทำซ้ำ' : 'Redo'}>
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
                   <span>{locale === 'th' ? 'ทำซ้ำ' : 'Redo'}</span>
                 </button>
@@ -822,6 +899,7 @@ export default function App() {
                 <button className="shelf-btn" onClick={() => {
                   // Duplicate current page
                   if (pageOrder.length === 0) return;
+                  saveHistory();
                   const origIdx = pageOrder[activePagePos];
                   setPageOrder(prev => {
                     const next = [...prev];
