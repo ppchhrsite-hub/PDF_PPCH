@@ -3,7 +3,7 @@ import {
   FileText, Plus, Trash2, RotateCw, RotateCcw, Save, ZoomIn, 
   ZoomOut, Type, Square, Circle as CircleIcon, ArrowUpRight, 
   Palette, Layers, Lock, Unlock, PenTool, Eye, Sidebar, Settings,
-  AlignLeft, Search, Shield, History, Info, MessageSquare, ExternalLink, Download,
+  AlignLeft, Search, Shield, History, Info, MessageSquare, Download,
   Loader2, Clipboard, RefreshCw, Sparkles
 } from 'lucide-react';
 import { translations } from './utils/localization';
@@ -684,49 +684,88 @@ export default function App() {
       <div className="ribbon-tool-shelf">
         {activeTab === 'home' && (
           <>
+            {/* GROUP: ประวัติ */}
             <div className="shelf-group">
               <div className="shelf-buttons">
+                <button className="shelf-btn" disabled title={locale === 'th' ? 'ย้อนกลับ (เร็วๆ นี้)' : 'Undo (soon)'}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+                  <span>{locale === 'th' ? 'ย้อนกลับ' : 'Undo'}</span>
+                </button>
+                <button className="shelf-btn" disabled title={locale === 'th' ? 'ทำซ้ำ (เร็วๆ นี้)' : 'Redo (soon)'}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
+                  <span>{locale === 'th' ? 'ทำซ้ำ' : 'Redo'}</span>
+                </button>
+              </div>
+              <span className="shelf-group-label">{locale === 'th' ? 'ประวัติ' : 'History'}</span>
+            </div>
+
+            {/* GROUP: ไฟล์ */}
+            <div className="shelf-group">
+              <div className="shelf-buttons">
+                <button className="shelf-btn" onClick={() => { setCurrentFile(null); setCurrentFileName(''); setPdfInfo(null); setPageOrder([]); setAnnotations([]); setHistoryLog([]); setStatusLog('Ready'); }} title={locale === 'th' ? 'สร้างเอกสารใหม่' : 'New document'}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                  <span>{locale === 'th' ? 'สร้างใหม่' : 'New'}</span>
+                </button>
                 <button className="shelf-btn" onClick={() => fileInputRef.current?.click()}>
-                  <FileText />
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 22h14"/><path d="M5 2h9l4 4v3"/><path d="M14 2v4h4"/><path d="M14 22v-7"/><path d="m9 18 3-3 3 3"/></svg>
                   <span>{locale === 'th' ? 'เปิด' : 'Open'}</span>
                 </button>
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  accept=".pdf" 
-                  style={{ display: 'none' }} 
-                  onChange={(e) => e.target.files?.[0] && handleFileLoad(e.target.files[0])} 
-                />
+                <input type="file" ref={fileInputRef} accept=".pdf" style={{ display: 'none' }} onChange={(e) => e.target.files?.[0] && handleFileLoad(e.target.files[0])} />
+                <button className="shelf-btn" onClick={handleSaveAndDownload} disabled={!currentFile}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                  <span>{locale === 'th' ? 'บันทึก' : 'Save'}</span>
+                </button>
+                <button className="shelf-btn" onClick={handleSaveAndDownload} disabled={!currentFile}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/><path d="M12 17v-5m-2 3 2-3 2 3" /><line x1="9" y1="21" x2="9" y2="17" /></svg>
+                  <span>{locale === 'th' ? 'บันทึกเป็น' : 'Save As'}</span>
+                </button>
+                <button className="shelf-btn" disabled={!currentFile} title={locale === 'th' ? 'พิมพ์ (เร็วๆ นี้)' : 'Print (soon)'} onClick={() => window.print()}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                  <span>{locale === 'th' ? 'พิมพ์' : 'Print'}</span>
+                </button>
+                <button className="shelf-btn" onClick={handleSaveAndDownload} disabled={!currentFile}>
+                  <Download />
+                  <span>{locale === 'th' ? 'ส่งออก' : 'Export'}</span>
+                </button>
               </div>
               <span className="shelf-group-label">{locale === 'th' ? 'ไฟล์' : 'File'}</span>
             </div>
 
+            {/* GROUP: ปืนาง (Tools) */}
             {currentFile && (
-              <>
-                <div className="shelf-group">
-                  <div className="shelf-buttons">
-                    <button className="shelf-btn" onClick={() => setZoom(z => Math.max(50, z - 25))}>
-                      <ZoomOut />
-                      <span>{locale === 'th' ? 'ย่อ' : 'Zoom -'}</span>
-                    </button>
-                    <button className="shelf-btn" onClick={() => setZoom(z => Math.min(200, z + 25))}>
-                      <ZoomIn />
-                      <span>{locale === 'th' ? 'ขยาย' : 'Zoom +'}</span>
-                    </button>
-                  </div>
-                  <span className="shelf-group-label">{locale === 'th' ? 'การนำทาง' : 'Navigation'}</span>
+              <div className="shelf-group">
+                <div className="shelf-buttons">
+                  <button className={`shelf-btn ${activeTool === 'select' ? 'active' : ''}`} onClick={() => setActiveTool('select')}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 3 7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="m13 13 6 6"/></svg>
+                    <span>{locale === 'th' ? 'เลือก' : 'Select'}</span>
+                  </button>
+                  <button className={`shelf-btn ${activeTool === 'hand' ? 'active' : ''}`} onClick={() => setActiveTool('hand')}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2 2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
+                    <span>{locale === 'th' ? 'เลื่อนหน้า' : 'Hand'}</span>
+                  </button>
+                  <button className={`shelf-btn ${activeTool === 'text' ? 'active' : ''}`} onClick={() => setActiveTool('text')}>
+                    <Type />
+                    <span>{locale === 'th' ? 'เลือกข้อความ' : 'Text'}</span>
+                  </button>
+                  <button className={`shelf-btn ${activeTool === 'signature' ? 'active' : ''}`} onClick={() => setActiveTool('signature')}>
+                    <PenTool />
+                    <span>{locale === 'th' ? 'ตัดแปะ' : 'Stamp'}</span>
+                  </button>
+                  <button className="shelf-btn" onClick={() => { setSidebarTabRight('search'); setIsRightCollapsed(false); }}>
+                    <Search />
+                    <span>{locale === 'th' ? 'ค้นหา' : 'Search'}</span>
+                  </button>
+                  <button className="shelf-btn" onClick={() => setZoom(z => Math.min(200, z + 25))}>
+                    <ZoomIn />
+                    <span>{locale === 'th' ? 'ขยาย' : 'Zoom +'}</span>
+                  </button>
+                  <button className="shelf-btn" onClick={() => setZoom(z => Math.max(25, z - 25))}>
+                    <ZoomOut />
+                    <span>{locale === 'th' ? 'ย่อ' : 'Zoom -'}</span>
+                  </button>
                 </div>
-
-                <div className="shelf-group">
-                  <div className="shelf-buttons">
-                    <button className="shelf-btn" onClick={handleSaveAndDownload}>
-                      <Download />
-                      <span>{locale === 'th' ? 'ส่งออก' : 'Export'}</span>
-                    </button>
-                  </div>
-                  <span className="shelf-group-label">{locale === 'th' ? 'เอาต์พุต' : 'Output'}</span>
-                </div>
-              </>
+                <span className="shelf-group-label">{locale === 'th' ? 'ปืนาง' : 'Tools'}</span>
+              </div>
             )}
           </>
         )}
@@ -972,21 +1011,7 @@ export default function App() {
             )}
           </div>
 
-          {/* Social media footer */}
-          <div className="sidebar-socials">
-            <a href="https://tiktok.com" target="_blank" rel="noreferrer" className="social-icon">
-              <span>TikTok</span>
-              <ExternalLink size={10} />
-            </a>
-            <a href="https://discord.com" target="_blank" rel="noreferrer" className="social-icon">
-              <span>Discord</span>
-              <ExternalLink size={10} />
-            </a>
-            <a href="https://line.me" target="_blank" rel="noreferrer" className="social-icon">
-              <span>LINE</span>
-              <ExternalLink size={10} />
-            </a>
-          </div>
+          {/* sidebar footer removed - social links deleted */}
         </aside>
 
         {/* CENTER CANVAS WORKSPACE */}
