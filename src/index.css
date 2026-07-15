@@ -376,6 +376,113 @@ input:focus, select:focus {
   position: relative;
 }
 
+/* ==================== DROPZONE ==================== */
+.dropzone-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-color: var(--bg-primary);
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: 48px 40px;
+  max-width: 480px;
+  width: 100%;
+  margin: auto;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.dropzone-container.drag-over {
+  border-color: var(--brand-primary);
+  background-color: oklch(from var(--brand-primary) l c h / 0.06);
+}
+
+.dropzone-icon-wrapper {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: oklch(from var(--brand-primary) l c h / 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.dropzone-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+
+.dropzone-subtitle {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 28px;
+  max-width: 340px;
+}
+
+.dropzone-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 28px;
+  background: linear-gradient(135deg, var(--brand-primary), oklch(0.6 0.22 310));
+  color: white;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 14px oklch(from var(--brand-primary) l c h / 0.35);
+  margin-bottom: 14px;
+}
+
+.dropzone-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px oklch(from var(--brand-primary) l c h / 0.45);
+}
+
+.dropzone-drag-hint {
+  font-size: 0.82rem;
+  color: var(--text-tertiary);
+  margin-bottom: 28px;
+}
+
+.dropzone-privacy-badge {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background-color: oklch(0.55 0.14 145 / 0.12);
+  border: 1px solid oklch(0.55 0.14 145 / 0.3);
+  border-radius: var(--radius-lg);
+  padding: 12px 16px;
+  text-align: left;
+  color: oklch(0.7 0.12 145);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  max-width: 380px;
+  width: 100%;
+}
+
+.dropzone-privacy-badge strong {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 2px;
+  color: oklch(0.65 0.15 145);
+}
+
+.dropzone-privacy-badge p {
+  margin: 0;
+  color: oklch(0.65 0.1 145);
+  font-size: 0.78rem;
+}
+
+
 /* Page card container styling */
 .workspace-page-card {
   position: relative;
@@ -387,6 +494,7 @@ input:focus, select:focus {
   overflow: visible;
   transition: box-shadow 0.2s, transform 0.2s;
 }
+
 
 .workspace-page-card.active {
   box-shadow: 0 0 0 3px var(--brand-primary), 0 20px 30px -10px rgba(0,0,0,0.5);
