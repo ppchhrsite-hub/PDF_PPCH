@@ -770,7 +770,7 @@ export default function App() {
           </>
         )}
 
-        {activeTab === 'edit' && currentFile && (
+        {activeTab === 'edit' && (
           <>
             {/* GROUP: เนื้อหา */}
             <div className="shelf-group">
@@ -783,7 +783,7 @@ export default function App() {
                   </button>
                   <span style={{ fontSize: '9px', color: 'var(--brand-primary)', fontWeight: 600 }}>{locale === 'th' ? 'กำลังพัฒนา' : 'Coming Soon'}</span>
                 </div>
-                <button className={`shelf-btn ${activeTool === 'text' ? 'active' : ''}`} onClick={() => setActiveTool('text')}>
+                <button className={`shelf-btn ${activeTool === 'text' ? 'active' : ''}`} onClick={() => setActiveTool('text')} disabled={!currentFile}>
                   <Type />
                   <span>{locale === 'th' ? 'เพิ่มข้อความ' : 'Add Text'}</span>
                 </button>
@@ -802,11 +802,11 @@ export default function App() {
             {/* GROUP: หน้า */}
             <div className="shelf-group">
               <div className="shelf-buttons">
-                <button className="shelf-btn" onClick={() => handleRotatePage('left')}>
+                <button className="shelf-btn" onClick={() => handleRotatePage('left')} disabled={!currentFile}>
                   <RotateCcw />
                   <span>{locale === 'th' ? 'หมุนซ้าย' : 'Rotate L'}</span>
                 </button>
-                <button className="shelf-btn" onClick={() => handleRotatePage('right')}>
+                <button className="shelf-btn" onClick={() => handleRotatePage('right')} disabled={!currentFile}>
                   <RotateCw />
                   <span>{locale === 'th' ? 'หมุนขวา' : 'Rotate R'}</span>
                 </button>
@@ -821,22 +821,22 @@ export default function App() {
                   });
                   addLog(locale === 'th' ? `ทำซ้ำหน้า ${activePagePos + 1}` : `Duplicated page ${activePagePos + 1}`);
                   setStatusLog(locale === 'th' ? 'ทำซ้ำหน้าเรียบร้อย' : 'Page duplicated');
-                }}>
+                }} disabled={!currentFile}>
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
                     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
                   </svg>
                   <span>{locale === 'th' ? 'ทำซ้ำ' : 'Duplicate'}</span>
                 </button>
-                <button className="shelf-btn" onClick={handleDeletePage}>
+                <button className="shelf-btn" onClick={handleDeletePage} disabled={!currentFile}>
                   <Trash2 color="var(--accent-red)" />
                   <span>{locale === 'th' ? 'ลบ' : 'Delete'}</span>
                 </button>
-                <button className="shelf-btn" onClick={handleAddBlankPage}>
+                <button className="shelf-btn" onClick={handleAddBlankPage} disabled={!currentFile}>
                   <Plus />
                   <span>{locale === 'th' ? 'เพิ่มหน้าว่าง' : 'Blank Page'}</span>
                 </button>
-                <button className="shelf-btn" onClick={handleReversePages}>
+                <button className="shelf-btn" onClick={handleReversePages} disabled={!currentFile}>
                   <RefreshCw />
                   <span>{locale === 'th' ? 'กลับลำดับหน้า' : 'Reverse'}</span>
                 </button>
