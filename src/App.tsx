@@ -4,7 +4,7 @@ import {
   ZoomOut, Type, Square, Circle as CircleIcon, ArrowUpRight, 
   Palette, Layers, Lock, Unlock, PenTool, Eye, Sidebar, Settings,
   AlignLeft, Search, Shield, History, Info, MessageSquare, Download,
-  Loader2, Clipboard, RefreshCw, Sparkles
+  Loader2, Clipboard, RefreshCw, Sparkles, FileText, Bookmark, Paperclip
 } from 'lucide-react';
 import { translations } from './utils/localization';
 import type { Locale } from './utils/localization';
@@ -67,8 +67,17 @@ export default function App() {
   // Expandable Sidebars State
   const [sidebarTabLeft, setSidebarTabLeft] = useState<'pages' | 'bookmarks' | 'layers' | 'attachments' | 'toolkit'>('pages');
   const [sidebarTabRight, setSidebarTabRight] = useState<'inspector' | 'comments' | 'search' | 'security' | 'history'>('inspector');
-  const [isLeftCollapsed, setIsLeftCollapsed] = useState(false);
+  const [isLeftCollapsed, setIsLeftCollapsed] = useState(true);
   const [isRightCollapsed, setIsRightCollapsed] = useState(false);
+
+  const handleLeftTabClick = (tab: 'pages' | 'bookmarks' | 'layers' | 'attachments' | 'toolkit') => {
+    if (sidebarTabLeft === tab) {
+      setIsLeftCollapsed(prev => !prev);
+    } else {
+      setSidebarTabLeft(tab);
+      setIsLeftCollapsed(false);
+    }
+  };
 
   // Modals & Protection States
   const [showSignatureModal, setShowSignatureModal] = useState(false);
@@ -1006,46 +1015,98 @@ export default function App() {
       {/* Workbench Content Body containing Dual Sidebars and Canvas Workspace */}
       <div className="workbench-body">
         
-        {/* LEFT SIDEBAR: page thumbnails & bookmarks */}
+        {/* LEFT TAB STRIP (Always visible) */}
+        <div className="sidebar-tab-strip-left">
+          <button 
+            className={`tab-strip-btn ${!isLeftCollapsed && sidebarTabLeft === 'pages' ? 'active' : ''}`}
+            onClick={() => handleLeftTabClick('pages')}
+          >
+            <FileText size={20} />
+            <span className="tooltip">{locale === 'th' ? 'หน้า' : 'Pages'}</span>
+          </button>
+          <button 
+            className={`tab-strip-btn ${!isLeftCollapsed && sidebarTabLeft === 'bookmarks' ? 'active' : ''}`}
+            onClick={() => handleLeftTabClick('bookmarks')}
+          >
+            <Bookmark size={20} />
+            <span className="tooltip">{locale === 'th' ? 'บุ๊กมาร์ก' : 'Bookmarks'}</span>
+          </button>
+          <button 
+            className={`tab-strip-btn ${!isLeftCollapsed && sidebarTabLeft === 'layers' ? 'active' : ''}`}
+            onClick={() => handleLeftTabClick('layers')}
+          >
+            <Layers size={20} />
+            <span className="tooltip">{locale === 'th' ? 'เลเยอร์' : 'Layers'}</span>
+          </button>
+          <button 
+            className={`tab-strip-btn ${!isLeftCollapsed && sidebarTabLeft === 'attachments' ? 'active' : ''}`}
+            onClick={() => handleLeftTabClick('attachments')}
+          >
+            <Paperclip size={20} />
+            <span className="tooltip">{locale === 'th' ? 'ไฟล์แนบ' : 'Attachments'}</span>
+          </button>
+          <button 
+            className={`tab-strip-btn ${!isLeftCollapsed && sidebarTabLeft === 'toolkit' ? 'active' : ''}`}
+            onClick={() => handleLeftTabClick('toolkit')}
+            style={{ backgroundColor: !isLeftCollapsed && sidebarTabLeft === 'toolkit' ? 'rgba(168, 85, 247, 0.2)' : 'transparent', color: !isLeftCollapsed && sidebarTabLeft === 'toolkit' ? '#a855f7' : 'inherit' }}
+          >
+            <Sparkles size={20} />
+            <span className="tooltip">{locale === 'th' ? 'ชุดเครื่องมือ' : 'Toolkit'}</span>
+          </button>
+        </div>
+
+        {/* LEFT SIDEBAR PANEL: Displays content of active tab */}
         <aside className={`sidebar-panel-left ${isLeftCollapsed ? 'collapsed' : ''}`}>
-          <div className="sidebar-panel-header">
-            <button className={`sidebar-tab-btn ${sidebarTabLeft === 'pages' ? 'active' : ''}`} onClick={() => setSidebarTabLeft('pages')}>
-              <Layers size={14} />
-              <span>Pages</span>
-            </button>
-            <button className={`sidebar-tab-btn ${sidebarTabLeft === 'bookmarks' ? 'active' : ''}`} onClick={() => setSidebarTabLeft('bookmarks')}>
-              <AlignLeft size={14} />
-              <span>Outline</span>
+          <div className="sidebar-panel-header" style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+            <h3 style={{ fontSize: '13px', fontWeight: 600, color: 'var(--brand-primary)', margin: 0 }}>
+              {sidebarTabLeft === 'pages' && (locale === 'th' ? 'หน้ากระดาษทั้งหมด' : 'Pages')}
+              {sidebarTabLeft === 'bookmarks' && (locale === 'th' ? 'สารบัญโครงร่าง' : 'Outline')}
+              {sidebarTabLeft === 'layers' && (locale === 'th' ? 'เลเยอร์เอกสาร' : 'Document Layers')}
+              {sidebarTabLeft === 'attachments' && (locale === 'th' ? 'ไฟล์แนบทั้งหมด' : 'Attachments')}
+              {sidebarTabLeft === 'toolkit' && (locale === 'th' ? 'ชุดเครื่องมือเสริม' : 'Toolkit Panel')}
+            </h3>
+            <button 
+              onClick={() => setIsLeftCollapsed(true)}
+              style={{ background: 'none', border: 'none', color: 'var(--text-tertiary)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+              title="Close panel"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           </div>
 
-          <div className="sidebar-scrollable-content">
-            {sidebarTabLeft === 'pages' && currentFile && pdfInfo && (
-              <div className="sidebar-pages-grid">
-                {pageOrder.map((origIdx, pos) => {
-                  return (
-                    <div 
-                      key={origIdx} 
-                      className={`sidebar-thumbnail-node ${activePagePos === pos ? 'active' : ''}`}
-                      onClick={() => setActivePagePos(pos)}
-                    >
-                      <div className="thumbnail-frame" style={{ aspectRatio: '595/842', backgroundColor: '#ffffff', border: '1px solid var(--border-color)' }}>
-                        {origIdx >= 0 ? (
-                          <PdfPageRenderer 
-                            arrayBuffer={currentFile} 
-                            pageIndex={origIdx} 
-                            zoom={25} 
-                            rotation={pageRotations[origIdx] || 0}
-                          />
-                        ) : (
-                          <div style={{ fontSize: '9px', color: '#999', fontWeight: 600, display: 'grid', placeItems: 'center', height: '100%' }}>Blank</div>
-                        )}
+          <div className="sidebar-scrollable-content" style={{ padding: '12px' }}>
+            {sidebarTabLeft === 'pages' && (
+              currentFile && pdfInfo ? (
+                <div className="sidebar-pages-grid">
+                  {pageOrder.map((origIdx, pos) => {
+                    return (
+                      <div 
+                        key={origIdx} 
+                        className={`sidebar-thumbnail-node ${activePagePos === pos ? 'active' : ''}`}
+                        onClick={() => setActivePagePos(pos)}
+                      >
+                        <div className="thumbnail-frame" style={{ aspectRatio: '595/842', backgroundColor: '#ffffff', border: '1px solid var(--border-color)' }}>
+                          {origIdx >= 0 ? (
+                            <PdfPageRenderer 
+                              arrayBuffer={currentFile} 
+                              pageIndex={origIdx} 
+                              zoom={25} 
+                              rotation={pageRotations[origIdx] || 0}
+                            />
+                          ) : (
+                            <div style={{ fontSize: '9px', color: '#999', fontWeight: 600, display: 'grid', placeItems: 'center', height: '100%' }}>Blank</div>
+                          )}
+                        </div>
+                        <span className="thumbnail-page-number">Page {pos + 1}</span>
                       </div>
-                      <span className="thumbnail-page-number">Page {pos + 1}</span>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', textAlign: 'center', marginTop: '20px' }}>
+                  {locale === 'th' ? 'กรุณาอัปโหลดไฟล์ PDF เพื่อแสดงหน้าเอกสาร' : 'Please upload a PDF to view pages.'}
+                </div>
+              )
             )}
 
             {sidebarTabLeft === 'bookmarks' && (
@@ -1053,9 +1114,44 @@ export default function App() {
                 {locale === 'th' ? 'ไม่มีข้อมูลโครงสร้างสารบัญในไฟล์นี้' : 'No outline found in this document.'}
               </div>
             )}
-          </div>
 
-          {/* sidebar footer removed - social links deleted */}
+            {sidebarTabLeft === 'layers' && (
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <input type="checkbox" defaultChecked />
+                  <span>{locale === 'th' ? 'เลเยอร์หลัก (ข้อความและโครงสร้าง)' : 'Base Document Content'}</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input type="checkbox" defaultChecked />
+                  <span>{locale === 'th' ? 'เลเยอร์คำอธิบาย (Annotations)' : 'Interactive Annotations'}</span>
+                </div>
+              </div>
+            )}
+
+            {sidebarTabLeft === 'attachments' && (
+              <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', textAlign: 'center', marginTop: '20px' }}>
+                {locale === 'th' ? 'ไม่มีไฟล์แนบในเอกสารนี้' : 'No attachments found in this document.'}
+              </div>
+            )}
+
+            {sidebarTabLeft === 'toolkit' && (
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                <p style={{ fontWeight: 600, marginBottom: '8px', color: 'var(--brand-primary)' }}>
+                  {locale === 'th' ? 'เครื่องมือด่วน (Quick Tools)' : 'Quick Actions'}
+                </p>
+                <button 
+                  className="btn-primary" 
+                  style={{ width: '100%', padding: '6px', fontSize: '11px', marginBottom: '6px' }}
+                  onClick={() => setActiveTab('toolkit')}
+                >
+                  {locale === 'th' ? 'เปิดชุดเครื่องมือเต็มรูปแบบ' : 'Open Full Toolkit'}
+                </button>
+                <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '10px' }}>
+                  {locale === 'th' ? 'ผสานไฟล์ หมุน แยก หรือครอบตัดหน้ากระดาษได้ง่ายๆ' : 'Easily merge, rotate, split, or crop PDF documents.'}
+                </div>
+              </div>
+            )}
+          </div>
         </aside>
 
         {/* CENTER CANVAS WORKSPACE */}

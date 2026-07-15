@@ -278,6 +278,83 @@ input:focus, select:focus {
   position: relative;
 }
 
+/* Narrow Left Tab Strip (Vertical) */
+.sidebar-tab-strip-left {
+  width: 48px;
+  background-color: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 12px;
+  gap: 12px;
+  flex-shrink: 0;
+  z-index: 15;
+}
+
+/* Vertical Tab Strip Buttons with Tooltips */
+.tab-strip-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.tab-strip-btn:hover {
+  background-color: var(--bg-primary);
+  color: var(--brand-primary);
+}
+
+.tab-strip-btn.active {
+  background-color: oklch(from var(--brand-primary) l c h / 0.12);
+  color: var(--brand-primary);
+}
+
+/* Premium Black Tooltips */
+.tab-strip-btn .tooltip {
+  position: absolute;
+  left: 56px;
+  top: 50%;
+  transform: translateY(-50%) scale(0.9);
+  background-color: #1f1f1f;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  z-index: 999;
+}
+
+/* Tooltip triangle pointer */
+.tab-strip-btn .tooltip::after {
+  content: '';
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent #1f1f1f transparent transparent;
+}
+
+.tab-strip-btn:hover .tooltip {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
+}
+
 /* Left & Right Sidebar Containers */
 .sidebar-panel-left, .sidebar-panel-right {
   width: 250px;
