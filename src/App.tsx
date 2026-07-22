@@ -126,6 +126,16 @@ export default function App() {
   const [drawPoints, setDrawPoints] = useState<{ x: number; y: number }[]>([]);
   const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
   const [currentDragAnn, setCurrentDragAnn] = useState<Partial<AnnotationItem> | null>(null);
+  const [resizingState, setResizingState] = useState<{
+    annId: string;
+    handle: string;
+    startX: number;
+    startY: number;
+    startAnnX: number;
+    startAnnY: number;
+    startAnnW: number;
+    startAnnH: number;
+  } | null>(null);
 
   // Default drawing properties
   const [inspectorColor, setInspectorColor] = useState('#ff0055');
@@ -472,7 +482,61 @@ export default function App() {
     setCurrentDragAnn(tempAnn);
   };
 
+  const handleResizeStart = (e: React.MouseEvent, ann: AnnotationItem, handle: string) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setSelectedAnnId(ann.id);
+    setResizingState({
+      annId: ann.id,
+      handle,
+      startX: e.clientX,
+      startY: e.clientY,
+      startAnnX: ann.x,
+      startAnnY: ann.y,
+      startAnnW: ann.width || 10,
+      startAnnH: ann.height || 10
+    });
+  };
+
   const handleWorkspacePointerMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (resizingState) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const deltaX = ((e.clientX - resizingState.startX) / rect.width) * 100;
+      const deltaY = ((e.clientY - resizingState.startY) / rect.height) * 100;
+
+      let newX = resizingState.startAnnX;
+      let newY = resizingState.startAnnY;
+      let newW = resizingState.startAnnW;
+      let newH = resizingState.startAnnH;
+
+      const h = resizingState.handle;
+      if (h.includes('e')) newW = Math.max(0.5, resizingState.startAnnW + deltaX);
+      if (h.includes('s')) newH = Math.max(0.5, resizingState.startAnnH + deltaY);
+      if (h.includes('w')) {
+        const potentialW = resizingState.startAnnW - deltaX;
+        if (potentialW >= 0.5) {
+          newW = potentialW;
+          newX = resizingState.startAnnX + deltaX;
+        }
+      }
+      if (h.includes('n')) {
+        const potentialH = resizingState.startAnnH - deltaY;
+        if (potentialH >= 0.5) {
+          newH = potentialH;
+          newY = resizingState.startAnnY + deltaY;
+        }
+      }
+
+      setAnnotations(prev => prev.map(ann => ann.id === resizingState.annId ? {
+        ...ann,
+        x: newX,
+        y: newY,
+        width: newW,
+        height: newH
+      } : ann));
+      return;
+    }
+
     if (!isDrawing || !dragStart || !currentDragAnn) return;
 
     const rect = e.currentTarget.getBoundingClientRect();
@@ -503,6 +567,12 @@ export default function App() {
   };
 
   const handleWorkspacePointerUp = () => {
+    if (resizingState) {
+      saveHistory();
+      setResizingState(null);
+      return;
+    }
+
     if (!isDrawing || !currentDragAnn) return;
     setIsDrawing(false);
     setDragStart(null);
@@ -1435,6 +1505,19 @@ export default function App() {
                                   REDACT
                                 </div>
                               )}
+
+                              {isSelected && (
+                                <>
+                                  <div className="annotation-resize-handle nw" onMouseDown={(e) => handleResizeStart(e, ann, 'nw')} />
+                                  <div className="annotation-resize-handle n"  onMouseDown={(e) => handleResizeStart(e, ann, 'n')} />
+                                  <div className="annotation-resize-handle ne" onMouseDown={(e) => handleResizeStart(e, ann, 'ne')} />
+                                  <div className="annotation-resize-handle e"  onMouseDown={(e) => handleResizeStart(e, ann, 'e')} />
+                                  <div className="annotation-resize-handle se" onMouseDown={(e) => handleResizeStart(e, ann, 'se')} />
+                                  <div className="annotation-resize-handle s"  onMouseDown={(e) => handleResizeStart(e, ann, 's')} />
+                                  <div className="annotation-resize-handle sw" onMouseDown={(e) => handleResizeStart(e, ann, 'sw')} />
+                                  <div className="annotation-resize-handle w"  onMouseDown={(e) => handleResizeStart(e, ann, 'w')} />
+                                </>
+                              )}
                             </div>
                           );
                         })}
@@ -1555,8 +1638,8 @@ export default function App() {
                         </span>
                         
                         <div className="inspector-group">
-                          <span className="inspector-label">{t.inspector.color}</span>
-                          <div className="color-palette">
+                          <span className="inspector-label">{t.inspector.color} ({locale === 'th' ? 'เส้นขอบ' : 'Border'})</span>
+                          <div className="color-palette" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                             {['#ff0055', '#0077ff', '#00ff77', '#ffb700', '#7700ff', '#000000'].map(c => (
                               <button 
                                 key={c}
@@ -1565,20 +1648,40 @@ export default function App() {
                                 onClick={() => setInspectorColor(c)}
                               />
                             ))}
+                            <input 
+                              type="color" 
+                              value={inspectorColor} 
+                              onChange={(e) => setInspectorColor(e.target.value)} 
+                              title="Custom Color"
+                              style={{ width: '24px', height: '24px', padding: 0, border: '1px solid var(--border-color)', borderRadius: '4px', cursor: 'pointer' }}
+                            />
                           </div>
                         </div>
 
                         <div className="inspector-group">
-                          <span className="inspector-label">{t.inspector.fillColor}</span>
-                          <div className="color-palette">
-                            {['', '#ff005533', '#0077ff33', '#00ff7733', '#ffb70033', '#ffffff88'].map(c => (
+                          <span className="inspector-label">{t.inspector.fillColor} ({locale === 'th' ? 'สีพื้น' : 'Fill'})</span>
+                          <div className="color-palette" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <button 
+                              className={`color-swatch ${inspectorFill === '' ? 'active' : ''}`}
+                              style={{ backgroundColor: 'transparent', border: '1px dashed var(--text-tertiary)' }}
+                              onClick={() => setInspectorFill('')}
+                              title="Transparent"
+                            />
+                            {['#ff005533', '#0077ff33', '#00ff7733', '#ffb70033', '#ffffff88'].map(c => (
                               <button 
                                 key={c}
                                 className={`color-swatch ${inspectorFill === c ? 'active' : ''}`}
-                                style={{ backgroundColor: c || 'transparent', border: c ? 'none' : '1px dashed var(--text-tertiary)' }}
+                                style={{ backgroundColor: c }}
                                 onClick={() => setInspectorFill(c)}
                               />
                             ))}
+                            <input 
+                              type="color" 
+                              value={inspectorFill && inspectorFill.length === 7 ? inspectorFill : '#ffffff'} 
+                              onChange={(e) => setInspectorFill(e.target.value)} 
+                              title="Custom Fill Color"
+                              style={{ width: '24px', height: '24px', padding: 0, border: '1px solid var(--border-color)', borderRadius: '4px', cursor: 'pointer' }}
+                            />
                           </div>
                         </div>
 
@@ -1625,30 +1728,161 @@ export default function App() {
 
                 {/* Selected element editor settings */}
                 {selectedAnnId && selectedAnn && (
-                  <div style={{ marginTop: '16px', borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                      <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--accent-yellow)' }}>
-                        {selectedAnn.type.toUpperCase()} ANNOTATION
+                  <div style={{ marginTop: '16px', borderTop: '1px solid var(--border-color)', paddingTop: '12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--brand-primary)' }}>
+                        {selectedAnn.type.toUpperCase()} ({locale === 'th' ? 'รูปทรงที่เลือก' : 'SELECTED'})
                       </span>
                       <button onClick={() => {
+                        saveHistory();
                         setAnnotations(prev => prev.filter(a => a.id !== selectedAnnId));
                         setSelectedAnnId(null);
-                      }} style={{ color: 'var(--accent-red)', fontSize: '11px' }}>
-                        Delete
+                      }} style={{ color: 'var(--accent-red)', fontSize: '11px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
+                        {locale === 'th' ? 'ลบรูปทรง' : 'Delete'}
                       </button>
                     </div>
 
+                    {/* Border Color */}
                     <div className="inspector-group">
-                      <span className="inspector-label">{t.inspector.color}</span>
-                      <div className="color-palette">
-                        {['#ff0055', '#0077ff', '#00ff77', '#ffb700', '#7700ff', '#000000'].map(c => (
+                      <span className="inspector-label">{locale === 'th' ? 'สีเส้นขอบ (Border Color)' : 'Border Color'}</span>
+                      <div className="color-palette" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        {['#ff0055', '#0077ff', '#00ff77', '#ffb700', '#7700ff', '#000000', '#ffffff'].map(c => (
                           <button 
                             key={c}
                             className={`color-swatch ${selectedAnn.color === c ? 'active' : ''}`}
-                            style={{ backgroundColor: c }}
+                            style={{ backgroundColor: c, border: c === '#ffffff' ? '1px solid #ccc' : 'none' }}
                             onClick={() => updateSelectedAnnotation({ color: c })}
                           />
                         ))}
+                        <input 
+                          type="color" 
+                          value={selectedAnn.color || '#ff0055'} 
+                          onChange={(e) => updateSelectedAnnotation({ color: e.target.value })} 
+                          title="Custom Color"
+                          style={{ width: '24px', height: '24px', padding: 0, border: '1px solid var(--border-color)', borderRadius: '4px', cursor: 'pointer' }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Fill Color */}
+                    <div className="inspector-group">
+                      <span className="inspector-label">{locale === 'th' ? 'สีพื้นหลัง (Fill Color)' : 'Fill Color'}</span>
+                      <div className="color-palette" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <button 
+                          className={`color-swatch ${!selectedAnn.fillColor || selectedAnn.fillColor === 'transparent' ? 'active' : ''}`}
+                          style={{ backgroundColor: 'transparent', border: '1px dashed var(--text-tertiary)' }}
+                          onClick={() => updateSelectedAnnotation({ fillColor: 'transparent' })}
+                          title="Transparent"
+                        />
+                        {['#ff005533', '#0077ff33', '#00ff7733', '#ffb70033', '#ffffff88', '#00000088'].map(c => (
+                          <button 
+                            key={c}
+                            className={`color-swatch ${selectedAnn.fillColor === c ? 'active' : ''}`}
+                            style={{ backgroundColor: c }}
+                            onClick={() => updateSelectedAnnotation({ fillColor: c })}
+                          />
+                        ))}
+                        <input 
+                          type="color" 
+                          value={selectedAnn.fillColor && selectedAnn.fillColor !== 'transparent' && selectedAnn.fillColor.length === 7 ? selectedAnn.fillColor : '#ffffff'} 
+                          onChange={(e) => updateSelectedAnnotation({ fillColor: e.target.value })} 
+                          title="Custom Fill Color"
+                          style={{ width: '24px', height: '24px', padding: 0, border: '1px solid var(--border-color)', borderRadius: '4px', cursor: 'pointer' }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Stroke Width */}
+                    <div className="inspector-group">
+                      <span className="inspector-label">{locale === 'th' ? 'ความหนาเส้นขอบ (px)' : 'Stroke Width (px)'}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <input 
+                          type="range" 
+                          min="1" 
+                          max="30" 
+                          className="slider-input" 
+                          style={{ flex: 1 }}
+                          value={selectedAnn.strokeWidth || 2} 
+                          onChange={(e) => updateSelectedAnnotation({ strokeWidth: parseInt(e.target.value) || 1 })}
+                        />
+                        <input 
+                          type="number" 
+                          min="1" 
+                          max="30"
+                          style={{ width: '48px', padding: '2px 4px', fontSize: '11px', textAlign: 'center' }}
+                          value={selectedAnn.strokeWidth || 2}
+                          onChange={(e) => updateSelectedAnnotation({ strokeWidth: parseInt(e.target.value) || 1 })}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Opacity */}
+                    <div className="inspector-group">
+                      <span className="inspector-label">{locale === 'th' ? 'ความโปร่งแสง' : 'Opacity'} ({Math.round((selectedAnn.opacity ?? 1) * 100)}%)</span>
+                      <input 
+                        type="range" 
+                        min="0.1" 
+                        max="1" 
+                        step="0.05"
+                        className="slider-input"
+                        value={selectedAnn.opacity ?? 1}
+                        onChange={(e) => updateSelectedAnnotation({ opacity: parseFloat(e.target.value) })}
+                      />
+                    </div>
+
+                    {/* Fine Dimensions */}
+                    <div className="inspector-group" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                      <div>
+                        <span className="inspector-label">{locale === 'th' ? 'ความกว้าง (%)' : 'Width (%)'}</span>
+                        <input 
+                          type="number" 
+                          step="0.5" 
+                          min="0.5" 
+                          max="100"
+                          style={{ width: '100%', padding: '4px', fontSize: '11px' }}
+                          value={Math.round((selectedAnn.width || 0) * 10) / 10}
+                          onChange={(e) => updateSelectedAnnotation({ width: parseFloat(e.target.value) || 1 })}
+                        />
+                      </div>
+                      <div>
+                        <span className="inspector-label">{locale === 'th' ? 'ความสูง (%)' : 'Height (%)'}</span>
+                        <input 
+                          type="number" 
+                          step="0.5" 
+                          min="0.5" 
+                          max="100"
+                          style={{ width: '100%', padding: '4px', fontSize: '11px' }}
+                          value={Math.round((selectedAnn.height || 0) * 10) / 10}
+                          onChange={(e) => updateSelectedAnnotation({ height: parseFloat(e.target.value) || 1 })}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Fine Position */}
+                    <div className="inspector-group" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                      <div>
+                        <span className="inspector-label">{locale === 'th' ? 'ตำแหน่ง X (%)' : 'Pos X (%)'}</span>
+                        <input 
+                          type="number" 
+                          step="0.5" 
+                          min="0" 
+                          max="100"
+                          style={{ width: '100%', padding: '4px', fontSize: '11px' }}
+                          value={Math.round((selectedAnn.x || 0) * 10) / 10}
+                          onChange={(e) => updateSelectedAnnotation({ x: parseFloat(e.target.value) || 0 })}
+                        />
+                      </div>
+                      <div>
+                        <span className="inspector-label">{locale === 'th' ? 'ตำแหน่ง Y (%)' : 'Pos Y (%)'}</span>
+                        <input 
+                          type="number" 
+                          step="0.5" 
+                          min="0" 
+                          max="100"
+                          style={{ width: '100%', padding: '4px', fontSize: '11px' }}
+                          value={Math.round((selectedAnn.y || 0) * 10) / 10}
+                          onChange={(e) => updateSelectedAnnotation({ y: parseFloat(e.target.value) || 0 })}
+                        />
                       </div>
                     </div>
                   </div>
