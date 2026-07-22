@@ -136,6 +136,13 @@ export default function App() {
     startAnnW: number;
     startAnnH: number;
   } | null>(null);
+  const [movingState, setMovingState] = useState<{
+    annId: string;
+    startX: number;
+    startY: number;
+    startAnnX: number;
+    startAnnY: number;
+  } | null>(null);
 
   // Default drawing properties
   const [inspectorColor, setInspectorColor] = useState('#ff0055');
@@ -482,6 +489,20 @@ export default function App() {
     setCurrentDragAnn(tempAnn);
   };
 
+  const handleAnnMoveStart = (e: React.MouseEvent, ann: AnnotationItem) => {
+    e.stopPropagation();
+    setSelectedAnnId(ann.id);
+    if (activeTool !== 'select') return;
+
+    setMovingState({
+      annId: ann.id,
+      startX: e.clientX,
+      startY: e.clientY,
+      startAnnX: ann.x,
+      startAnnY: ann.y
+    });
+  };
+
   const handleResizeStart = (e: React.MouseEvent, ann: AnnotationItem, handle: string) => {
     e.stopPropagation();
     e.preventDefault();
@@ -499,6 +520,22 @@ export default function App() {
   };
 
   const handleWorkspacePointerMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (movingState) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const deltaX = ((e.clientX - movingState.startX) / rect.width) * 100;
+      const deltaY = ((e.clientY - movingState.startY) / rect.height) * 100;
+
+      const newX = Math.max(0, Math.min(98, movingState.startAnnX + deltaX));
+      const newY = Math.max(0, Math.min(98, movingState.startAnnY + deltaY));
+
+      setAnnotations(prev => prev.map(ann => ann.id === movingState.annId ? {
+        ...ann,
+        x: newX,
+        y: newY
+      } : ann));
+      return;
+    }
+
     if (resizingState) {
       const rect = e.currentTarget.getBoundingClientRect();
       const deltaX = ((e.clientX - resizingState.startX) / rect.width) * 100;
@@ -567,6 +604,12 @@ export default function App() {
   };
 
   const handleWorkspacePointerUp = () => {
+    if (movingState) {
+      saveHistory();
+      setMovingState(null);
+      return;
+    }
+
     if (resizingState) {
       saveHistory();
       setResizingState(null);
@@ -1421,6 +1464,7 @@ export default function App() {
                             <div 
                               key={ann.id}
                               className={`annotation-node ${isSelected ? 'selected' : ''}`}
+                              onMouseDown={(e) => handleAnnMoveStart(e, ann)}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setSelectedAnnId(ann.id);

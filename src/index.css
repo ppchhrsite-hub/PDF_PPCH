@@ -614,6 +614,19 @@ input:focus, select:focus {
   position: absolute;
   user-select: none;
   cursor: move;
+  pointer-events: auto;
+}
+
+.annotation-node svg.shape-svg {
+  pointer-events: auto;
+}
+
+.annotation-node svg.shape-svg rect,
+.annotation-node svg.shape-svg ellipse,
+.annotation-node svg.shape-svg line,
+.annotation-node svg.shape-svg polyline {
+  pointer-events: all;
+  cursor: move;
 }
 
 .annotation-node.selected {
