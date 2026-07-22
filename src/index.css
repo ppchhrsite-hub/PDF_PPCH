@@ -2,60 +2,61 @@
 @import url('https://fonts.googleapis.com/css2?family=Google+Sans+Code:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* Default: Dark Theme (Match Lyncub default) */
-  --bg-primary: oklch(0.2928 0.0018 106.5);       /* Charcoal background for panels */
-  --bg-secondary: oklch(0.2679 0.0036 106.64);    /* Darker background for frames */
-  --bg-tertiary: oklch(0.2213 0.0038 106.7);      /* Deep workspace frame */
-  --bg-canvas: oklch(0.18 0.005 106.5);           /* Darkest background for canvas */
+  /* Default: White & Blue Theme (Sleek Modern White/Blue) */
+  --bg-primary: #ffffff;          /* Clean white for panels & toolbars */
+  --bg-secondary: #f8fafc;        /* Slate-50 light background */
+  --bg-tertiary: #f1f5f9;         /* Slate-100 container background */
+  --bg-canvas: #e2e8f0;           /* Slate-200 backdrop for document canvas */
   
-  --text-primary: oklch(0.9576 0.0027 106.45);    /* Off-white */
-  --text-secondary: oklch(0.7713 0.0169 99.07);   /* Light gray */
-  --text-tertiary: oklch(0.55 0.01 106.5);        /* Muted gray */
+  --text-primary: #0f172a;       /* Slate-900 high contrast dark text */
+  --text-secondary: #334155;     /* Slate-700 secondary text */
+  --text-tertiary: #64748b;      /* Slate-500 muted text */
   
-  --border-color: oklch(0.3618 0.0101 106.89);    /* Gray-brown border */
-  --border-focus: var(--brand-primary);
+  --border-color: #cbd5e1;       /* Slate-300 border */
+  --border-focus: #2563eb;       /* Royal Blue focus border */
   
-  --brand-primary: oklch(0.7637 0.1852 338.32);   /* Vibrant Purple Lyncub logo accent */
-  --brand-hover: oklch(0.82 0.16 338.32);
-  --brand-text: oklch(0.1908 0.002 106.59);
+  --brand-primary: #2563eb;      /* Royal Blue accent */
+  --brand-hover: #1d4ed8;        /* Darker Blue hover */
+  --brand-text: #ffffff;
   
-  --accent-blue: oklch(0.75 0.14 240);
-  --accent-green: oklch(0.8 0.15 140);
-  --accent-yellow: oklch(0.85 0.12 90);
-  --accent-red: oklch(0.7 0.18 25);
+  --accent-blue: #3b82f6;
+  --accent-green: #10b981;
+  --accent-yellow: #f59e0b;
+  --accent-red: #ef4444;
   
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-xl: 16px;
   
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.12);
   
   --font-sans: 'Prompt', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'Google Sans Code', ui-monospace, monospace;
 }
 
-[data-theme="light"] {
-  --bg-primary: oklch(0.985 0.003 106.5);
-  --bg-secondary: oklch(0.968 0.004 106.5);
-  --bg-tertiary: oklch(0.94 0.004 106.5);
-  --bg-canvas: oklch(0.9 0.005 106.5);
+[data-theme="dark"] {
+  --bg-primary: oklch(0.25 0.015 250);       /* Dark Slate Blue background */
+  --bg-secondary: oklch(0.20 0.02 250);     /* Darker Slate Blue */
+  --bg-tertiary: oklch(0.16 0.02 250);      /* Deep Canvas frame */
+  --bg-canvas: oklch(0.12 0.02 250);        /* Deepest canvas backdrop */
   
-  --text-primary: oklch(0.2679 0.0036 106.64);
-  --text-secondary: oklch(0.52 0.01 99.07);
-  --text-tertiary: oklch(0.68 0.008 106.5);
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #94a3b8;
   
-  --border-color: oklch(0.865 0.006 106.89);
+  --border-color: oklch(0.32 0.02 250);
+  --border-focus: #3b82f6;
   
-  --brand-primary: oklch(0.64 0.165 338.32);
-  --brand-hover: oklch(0.55 0.18 338.32);
-  --brand-text: oklch(1.0 0 0);
+  --brand-primary: #3b82f6;
+  --brand-hover: #60a5fa;
+  --brand-text: #ffffff;
   
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
 }
 
 /* Base Styles */
@@ -487,7 +488,8 @@ input:focus, select:focus {
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: oklch(from var(--brand-primary) l c h / 0.12);
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--brand-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -514,7 +516,7 @@ input:focus, select:focus {
   align-items: center;
   justify-content: center;
   padding: 12px 28px;
-  background: linear-gradient(135deg, var(--brand-primary), oklch(0.6 0.22 310));
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: white;
   font-weight: 600;
   font-size: 0.95rem;
@@ -522,14 +524,14 @@ input:focus, select:focus {
   border-radius: 9999px;
   cursor: pointer;
   transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
-  box-shadow: 0 4px 14px oklch(from var(--brand-primary) l c h / 0.35);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
   margin-bottom: 14px;
 }
 
 .dropzone-btn:hover {
-  opacity: 0.9;
+  opacity: 0.95;
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px oklch(from var(--brand-primary) l c h / 0.45);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);
 }
 
 .dropzone-drag-hint {
@@ -542,12 +544,12 @@ input:focus, select:focus {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  background-color: oklch(0.55 0.14 145 / 0.12);
-  border: 1px solid oklch(0.55 0.14 145 / 0.3);
+  background-color: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
   border-radius: var(--radius-lg);
   padding: 12px 16px;
   text-align: left;
-  color: oklch(0.7 0.12 145);
+  color: #047857;
   font-size: 0.82rem;
   line-height: 1.5;
   max-width: 380px;
@@ -558,12 +560,12 @@ input:focus, select:focus {
   display: block;
   font-weight: 700;
   margin-bottom: 2px;
-  color: oklch(0.65 0.15 145);
+  color: #065f46;
 }
 
 .dropzone-privacy-badge p {
   margin: 0;
-  color: oklch(0.65 0.1 145);
+  color: #047857;
   font-size: 0.78rem;
 }
 
