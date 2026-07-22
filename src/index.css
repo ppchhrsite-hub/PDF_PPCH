@@ -262,6 +262,14 @@ input:focus, select:focus {
   font-weight: 600;
 }
 
+.shelf-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+  background-color: transparent !important;
+  color: var(--text-tertiary) !important;
+}
+
 .shelf-group-label {
   font-size: 9px;
   text-transform: uppercase;

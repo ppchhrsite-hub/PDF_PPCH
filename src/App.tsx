@@ -817,42 +817,40 @@ export default function App() {
               <span className="shelf-group-label">{locale === 'th' ? 'ไฟล์' : 'File'}</span>
             </div>
 
-            {/* GROUP: ปืนาง (Tools) */}
-            {currentFile && (
-              <div className="shelf-group">
-                <div className="shelf-buttons">
-                  <button className={`shelf-btn ${activeTool === 'select' ? 'active' : ''}`} onClick={() => setActiveTool('select')}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 3 7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="m13 13 6 6"/></svg>
-                    <span>{locale === 'th' ? 'เลือก' : 'Select'}</span>
-                  </button>
-                  <button className={`shelf-btn ${activeTool === 'hand' ? 'active' : ''}`} onClick={() => setActiveTool('hand')}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2 2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
-                    <span>{locale === 'th' ? 'เลื่อนหน้า' : 'Hand'}</span>
-                  </button>
-                  <button className={`shelf-btn ${activeTool === 'text' ? 'active' : ''}`} onClick={() => setActiveTool('text')}>
-                    <Type />
-                    <span>{locale === 'th' ? 'เลือกข้อความ' : 'Text'}</span>
-                  </button>
-                  <button className={`shelf-btn ${activeTool === 'signature' ? 'active' : ''}`} onClick={() => setActiveTool('signature')}>
-                    <PenTool />
-                    <span>{locale === 'th' ? 'ตัดแปะ' : 'Stamp'}</span>
-                  </button>
-                  <button className="shelf-btn" onClick={() => { setSidebarTabRight('search'); setIsRightCollapsed(false); }}>
-                    <Search />
-                    <span>{locale === 'th' ? 'ค้นหา' : 'Search'}</span>
-                  </button>
-                  <button className="shelf-btn" onClick={() => setZoom(z => Math.min(200, z + 25))}>
-                    <ZoomIn />
-                    <span>{locale === 'th' ? 'ขยาย' : 'Zoom +'}</span>
-                  </button>
-                  <button className="shelf-btn" onClick={() => setZoom(z => Math.max(25, z - 25))}>
-                    <ZoomOut />
-                    <span>{locale === 'th' ? 'ย่อ' : 'Zoom -'}</span>
-                  </button>
-                </div>
-                <span className="shelf-group-label">{locale === 'th' ? 'ปืนาง' : 'Tools'}</span>
+            {/* GROUP: นำทาง (Tools) */}
+            <div className="shelf-group">
+              <div className="shelf-buttons">
+                <button className={`shelf-btn ${activeTool === 'select' ? 'active' : ''}`} onClick={() => setActiveTool('select')} disabled={!currentFile}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 3 7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="m13 13 6 6"/></svg>
+                  <span>{locale === 'th' ? 'เลือก' : 'Select'}</span>
+                </button>
+                <button className={`shelf-btn ${activeTool === 'hand' ? 'active' : ''}`} onClick={() => setActiveTool('hand')} disabled={!currentFile}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2 2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
+                  <span>{locale === 'th' ? 'เลื่อนหน้า' : 'Hand'}</span>
+                </button>
+                <button className={`shelf-btn ${activeTool === 'text' ? 'active' : ''}`} onClick={() => setActiveTool('text')} disabled={!currentFile}>
+                  <Type />
+                  <span>{locale === 'th' ? 'เลือกข้อความ' : 'Text'}</span>
+                </button>
+                <button className={`shelf-btn ${activeTool === 'signature' ? 'active' : ''}`} onClick={() => setActiveTool('signature')} disabled={!currentFile}>
+                  <PenTool />
+                  <span>{locale === 'th' ? 'ตัดแปะ' : 'Stamp'}</span>
+                </button>
+                <button className="shelf-btn" onClick={() => { setSidebarTabRight('search'); setIsRightCollapsed(false); }} disabled={!currentFile}>
+                  <Search />
+                  <span>{locale === 'th' ? 'ค้นหา' : 'Search'}</span>
+                </button>
+                <button className="shelf-btn" onClick={() => setZoom(z => Math.min(200, z + 25))} disabled={!currentFile}>
+                  <ZoomIn />
+                  <span>{locale === 'th' ? 'ขยาย' : 'Zoom +'}</span>
+                </button>
+                <button className="shelf-btn" onClick={() => setZoom(z => Math.max(25, z - 25))} disabled={!currentFile}>
+                  <ZoomOut />
+                  <span>{locale === 'th' ? 'ย่อ' : 'Zoom -'}</span>
+                </button>
               </div>
-            )}
+              <span className="shelf-group-label">{locale === 'th' ? 'นำทาง' : 'Tools'}</span>
+            </div>
           </>
         )}
 
@@ -933,15 +931,15 @@ export default function App() {
           </>
         )}
 
-        {activeTab === 'comment' && currentFile && (
+        {activeTab === 'comment' && (
           <>
             <div className="shelf-group">
               <div className="shelf-buttons">
-                <button className={`shelf-btn ${activeTool === 'select' ? 'active' : ''}`} onClick={() => setActiveTool('select')}>
+                <button className={`shelf-btn ${activeTool === 'select' ? 'active' : ''}`} onClick={() => setActiveTool('select')} disabled={!currentFile}>
                   <Eye />
                   <span>{locale === 'th' ? 'เลือก' : 'Select'}</span>
                 </button>
-                <button className={`shelf-btn ${activeTool === 'freehand' ? 'active' : ''}`} onClick={() => setActiveTool('freehand')}>
+                <button className={`shelf-btn ${activeTool === 'freehand' ? 'active' : ''}`} onClick={() => setActiveTool('freehand')} disabled={!currentFile}>
                   <PenTool />
                   <span>{locale === 'th' ? 'วาดปากกา' : 'Draw'}</span>
                 </button>
@@ -951,15 +949,15 @@ export default function App() {
 
             <div className="shelf-group">
               <div className="shelf-buttons">
-                <button className={`shelf-btn ${activeTool === 'rect' ? 'active' : ''}`} onClick={() => setActiveTool('rect')}>
+                <button className={`shelf-btn ${activeTool === 'rect' ? 'active' : ''}`} onClick={() => setActiveTool('rect')} disabled={!currentFile}>
                   <Square />
                   <span>{locale === 'th' ? 'สี่เหลี่ยม' : 'Rect'}</span>
                 </button>
-                <button className={`shelf-btn ${activeTool === 'circle' ? 'active' : ''}`} onClick={() => setActiveTool('circle')}>
+                <button className={`shelf-btn ${activeTool === 'circle' ? 'active' : ''}`} onClick={() => setActiveTool('circle')} disabled={!currentFile}>
                   <CircleIcon />
                   <span>{locale === 'th' ? 'วงกลม' : 'Circle'}</span>
                 </button>
-                <button className={`shelf-btn ${activeTool === 'arrow' ? 'active' : ''}`} onClick={() => setActiveTool('arrow')}>
+                <button className={`shelf-btn ${activeTool === 'arrow' ? 'active' : ''}`} onClick={() => setActiveTool('arrow')} disabled={!currentFile}>
                   <ArrowUpRight />
                   <span>{locale === 'th' ? 'ลูกศร' : 'Arrow'}</span>
                 </button>
@@ -969,7 +967,7 @@ export default function App() {
 
             <div className="shelf-group">
               <div className="shelf-buttons">
-                <button className="shelf-btn" onClick={() => setAnnotations([])}>
+                <button className="shelf-btn" onClick={() => setAnnotations([])} disabled={!currentFile}>
                   <Trash2 />
                   <span>{locale === 'th' ? 'ล้างทั้งหมด' : 'Clear All'}</span>
                 </button>
@@ -979,14 +977,14 @@ export default function App() {
           </>
         )}
 
-        {activeTab === 'view' && currentFile && (
+        {activeTab === 'view' && (
           <div className="shelf-group">
             <div className="shelf-buttons">
-              <button className={`shelf-btn ${activeTool === 'select' ? 'active' : ''}`} onClick={() => setActiveTool('select')}>
+              <button className={`shelf-btn ${activeTool === 'select' ? 'active' : ''}`} onClick={() => setActiveTool('select')} disabled={!currentFile}>
                 <Eye />
                 <span>{locale === 'th' ? 'ดูเอกสาร' : 'Select'}</span>
               </button>
-              <button className={`shelf-btn ${activeTool === 'hand' ? 'active' : ''}`} onClick={() => setActiveTool('hand')}>
+              <button className={`shelf-btn ${activeTool === 'hand' ? 'active' : ''}`} onClick={() => setActiveTool('hand')} disabled={!currentFile}>
                 <AlignLeft />
                 <span>{locale === 'th' ? 'เลื่อนหน้า' : 'Pan'}</span>
               </button>
@@ -995,7 +993,7 @@ export default function App() {
           </div>
         )}
 
-        {activeTab === 'forms' && currentFile && (
+        {activeTab === 'forms' && (
           <div className="shelf-group">
             <div className="shelf-buttons">
               <button className="shelf-btn" onClick={() => {
@@ -1004,7 +1002,7 @@ export default function App() {
                 } else {
                   setShowSignatureModal(true);
                 }
-              }}>
+              }} disabled={!currentFile}>
                 <Palette />
                 <span>{locale === 'th' ? 'ลงลายเซ็น' : 'Signature'}</span>
               </button>
@@ -1013,14 +1011,14 @@ export default function App() {
           </div>
         )}
 
-        {activeTab === 'security' && currentFile && (
+        {activeTab === 'security' && (
           <div className="shelf-group">
             <div className="shelf-buttons">
-              <button className={`shelf-btn ${activeTool === 'redact' ? 'active' : ''}`} onClick={() => setActiveTool('redact')}>
+              <button className={`shelf-btn ${activeTool === 'redact' ? 'active' : ''}`} onClick={() => setActiveTool('redact')} disabled={!currentFile}>
                 <Square color="var(--accent-red)" />
                 <span>{locale === 'th' ? 'ทำเครื่องหมาย' : 'Mark Redact'}</span>
               </button>
-              <button className="shelf-btn" onClick={() => setShowPasswordModal(true)}>
+              <button className="shelf-btn" onClick={() => setShowPasswordModal(true)} disabled={!currentFile}>
                 <Lock />
                 <span>{pdfPassword ? locale === 'th' ? 'เปลี่ยนรหัส' : 'Change Pass' : locale === 'th' ? 'ตั้งรหัสผ่าน' : 'Encrypt'}</span>
               </button>
@@ -1028,7 +1026,7 @@ export default function App() {
                 <button className="shelf-btn" onClick={() => {
                   setPdfPassword('');
                   alert(locale === 'th' ? 'ยกเลิกการล็อกรหัสผ่านแล้ว' : 'Password unlocked.');
-                }}>
+                }} disabled={!currentFile}>
                   <Unlock color="var(--accent-green)" />
                   <span>{t.security.decrypt}</span>
                 </button>
@@ -1038,10 +1036,10 @@ export default function App() {
           </div>
         )}
 
-        {activeTab === 'review' && currentFile && (
+        {activeTab === 'review' && (
           <div className="shelf-group">
             <div className="shelf-buttons">
-              <button className="shelf-btn" onClick={() => setSidebarTabRight('inspector')}>
+              <button className="shelf-btn" onClick={() => setSidebarTabRight('inspector')} disabled={!currentFile}>
                 <Info />
                 <span>{locale === 'th' ? 'ดูข้อมูลเมตา' : 'Metadata'}</span>
               </button>
@@ -1050,15 +1048,15 @@ export default function App() {
           </div>
         )}
 
-        {activeTab === 'ocr' && currentFile && (
+        {activeTab === 'ocr' && (
           <div className="shelf-group">
             <div className="shelf-buttons" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <select value={ocrLang} onChange={(e) => setOcrLang(e.target.value)} style={{ padding: '6px', fontSize: '12px' }}>
+              <select value={ocrLang} onChange={(e) => setOcrLang(e.target.value)} disabled={!currentFile} style={{ padding: '6px', fontSize: '12px' }}>
                 <option value="eng">English (eng)</option>
                 <option value="tha">ไทย (tha)</option>
                 <option value="eng+tha">Bilingual (eng+tha)</option>
               </select>
-              <button className="btn-primary" onClick={handleRunOcr} disabled={!ocrReady || isOcrProcessing} style={{ padding: '6px 14px' }}>
+              <button className="btn-primary" onClick={handleRunOcr} disabled={!currentFile || !ocrReady || isOcrProcessing} style={{ padding: '6px 14px' }}>
                 {isOcrProcessing ? (
                   <>
                     <Loader2 size={12} className="animate-spin" style={{ marginRight: '6px', verticalAlign: 'middle', display: 'inline' }} />
