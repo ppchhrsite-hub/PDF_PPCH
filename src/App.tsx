@@ -953,11 +953,11 @@ export default function App() {
                   <Search />
                   <span>{locale === 'th' ? 'ค้นหา' : 'Search'}</span>
                 </button>
-                <button className="shelf-btn" onClick={() => setZoom(z => Math.min(200, z + 25))} disabled={!currentFile}>
+                <button className="shelf-btn" onClick={() => setZoom(z => Math.min(1000, z + 50))} disabled={!currentFile}>
                   <ZoomIn />
                   <span>{locale === 'th' ? 'ขยาย' : 'Zoom +'}</span>
                 </button>
-                <button className="shelf-btn" onClick={() => setZoom(z => Math.max(25, z - 25))} disabled={!currentFile}>
+                <button className="shelf-btn" onClick={() => setZoom(z => Math.max(10, z - 25))} disabled={!currentFile}>
                   <ZoomOut />
                   <span>{locale === 'th' ? 'ย่อ' : 'Zoom -'}</span>
                 </button>
@@ -1843,7 +1843,7 @@ export default function App() {
                         <input 
                           type="range" 
                           min="1" 
-                          max="30" 
+                          max="100" 
                           className="slider-input" 
                           style={{ flex: 1 }}
                           value={selectedAnn.strokeWidth || 2} 
@@ -1852,7 +1852,7 @@ export default function App() {
                         <input 
                           type="number" 
                           min="1" 
-                          max="30"
+                          max="100"
                           style={{ width: '48px', padding: '2px 4px', fontSize: '11px', textAlign: 'center' }}
                           value={selectedAnn.strokeWidth || 2}
                           onChange={(e) => updateSelectedAnnotation({ strokeWidth: parseInt(e.target.value) || 1 })}
@@ -1882,7 +1882,7 @@ export default function App() {
                           type="number" 
                           step="0.5" 
                           min="0.5" 
-                          max="100"
+                          max="500"
                           style={{ width: '100%', padding: '4px', fontSize: '11px' }}
                           value={Math.round((selectedAnn.width || 0) * 10) / 10}
                           onChange={(e) => updateSelectedAnnotation({ width: parseFloat(e.target.value) || 1 })}
@@ -1894,7 +1894,7 @@ export default function App() {
                           type="number" 
                           step="0.5" 
                           min="0.5" 
-                          max="100"
+                          max="500"
                           style={{ width: '100%', padding: '4px', fontSize: '11px' }}
                           value={Math.round((selectedAnn.height || 0) * 10) / 10}
                           onChange={(e) => updateSelectedAnnotation({ height: parseFloat(e.target.value) || 1 })}
@@ -2070,18 +2070,36 @@ export default function App() {
             <span>Page {activePagePos + 1} of {pageOrder.length}</span>
             <span>|</span>
             <div className="zoom-slider-container">
-              <ZoomOut size={12} onClick={() => setZoom(z => Math.max(50, z - 25))} style={{ cursor: 'pointer' }} />
+              <ZoomOut size={12} onClick={() => setZoom(z => Math.max(10, z - 25))} style={{ cursor: 'pointer' }} />
               <input 
                 type="range" 
-                min="50" 
-                max="200" 
-                step="25" 
+                min="10" 
+                max="1000" 
+                step="10" 
                 className="zoom-slider-bar" 
                 value={zoom}
                 onChange={(e) => setZoom(parseInt(e.target.value))}
               />
-              <span>{zoom}%</span>
-              <ZoomIn size={12} onClick={() => setZoom(z => Math.min(200, z + 25))} style={{ cursor: 'pointer' }} />
+              <select 
+                value={zoom} 
+                onChange={(e) => setZoom(parseInt(e.target.value))}
+                style={{ background: 'none', border: 'none', color: 'inherit', fontSize: '11px', cursor: 'pointer', fontWeight: 600 }}
+              >
+                <option value={10}>10%</option>
+                <option value={25}>25%</option>
+                <option value={50}>50%</option>
+                <option value={75}>75%</option>
+                <option value={100}>100%</option>
+                <option value={125}>125%</option>
+                <option value={150}>150%</option>
+                <option value={200}>200%</option>
+                <option value={300}>300%</option>
+                <option value={400}>400%</option>
+                <option value={500}>500%</option>
+                <option value={750}>750%</option>
+                <option value={1000}>1000%</option>
+              </select>
+              <ZoomIn size={12} onClick={() => setZoom(z => Math.min(1000, z + 50))} style={{ cursor: 'pointer' }} />
             </div>
             <span>|</span>
             <button onClick={() => setIsRightCollapsed(c => !c)}>
