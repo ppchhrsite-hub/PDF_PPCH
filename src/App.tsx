@@ -244,7 +244,7 @@ export default function App() {
           
           setActivePagePos(0);
           setAnnotations([]);
-          setPageRotations({});
+          setPageRotations(info.initialRotations || {});
           setHistoryLog([]);
           
           addLog(locale === 'th' ? `เปิดเอกสาร ${file.name}` : `Opened document ${file.name}`);

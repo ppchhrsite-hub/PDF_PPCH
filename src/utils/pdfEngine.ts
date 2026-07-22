@@ -10,6 +10,7 @@ export interface DocumentInfo {
   creator: string;
   producer: string;
   isEncrypted: boolean;
+  initialRotations?: Record<number, number>;
 }
 
 export interface AnnotationItem {
@@ -45,6 +46,19 @@ export async function getPdfInfo(arrayBuffer: ArrayBuffer): Promise<DocumentInfo
     console.warn("Failed to read metadata", e);
   }
 
+  const initialRotations: Record<number, number> = {};
+  for (let i = 0; i < pdf.numPages; i++) {
+    try {
+      const page = await pdf.getPage(i + 1);
+      const viewport = page.getViewport({ scale: 1 });
+      if (viewport.width > viewport.height) {
+        initialRotations[i] = 90;
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+
   return {
     pageCount: pdf.numPages,
     title: metadata.Title || '',
@@ -52,6 +66,7 @@ export async function getPdfInfo(arrayBuffer: ArrayBuffer): Promise<DocumentInfo
     creator: metadata.Creator || '',
     producer: metadata.Producer || '',
     isEncrypted: false,
+    initialRotations,
   };
 }
 
