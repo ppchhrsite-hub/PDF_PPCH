@@ -50,9 +50,7 @@ export const PdfPageRenderer: React.FC<PdfPageRendererProps> = ({
         if (!active || !canvasRef.current) return;
 
         const scale = (zoom / 100) * 1.3;
-        const intrinsicRotation = page.rotate || 0;
-        const effectiveRotation = (rotation - intrinsicRotation + 360) % 360;
-        const viewport = page.getViewport({ scale, rotation: effectiveRotation });
+        const viewport = page.getViewport({ scale, rotation });
         const context = canvasRef.current.getContext('2d');
         
         if (!context) {

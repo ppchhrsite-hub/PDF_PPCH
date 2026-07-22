@@ -216,10 +216,13 @@ export async function applyEditsToPdf(
       const newPageIdx = pdfDoc.getPageCount() - 1;
       newToOriginalIndexMap[newPageIdx] = pageIndex;
 
-      // Apply rotation to match the upright visual view or user's explicit rotation choice
-      const page = pdfDoc.getPage(newPageIdx);
-      const userRot = (pageRotations[pageIndex] || 0) % 360;
-      page.setRotation(degrees(userRot));
+      // Apply rotation: combine intrinsic page rotation with user rotation offset
+      if (pageRotations[pageIndex] !== undefined && pageRotations[pageIndex] !== 0) {
+        const page = pdfDoc.getPage(newPageIdx);
+        const currentRotation = page.getRotation().angle;
+        const targetRotation = (currentRotation + pageRotations[pageIndex]) % 360;
+        page.setRotation(degrees(targetRotation));
+      }
     } else {
       const bp = blankPagesMap[pageIndex] || { width: 595, height: 842 };
       pdfDoc.addPage([bp.width, bp.height]);
