@@ -1440,6 +1440,33 @@ export default function App() {
                       } : {})
                     }}
                   >
+                    {/* Floating Page Toolbar */}
+                    <div style={{
+                      position: 'absolute',
+                      top: '-30px',
+                      right: '0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      zIndex: 80,
+                      backgroundColor: 'var(--surface-color)',
+                      padding: '2px 8px',
+                      borderRadius: '12px',
+                      boxShadow: 'var(--shadow-sm)',
+                      border: '1px solid var(--border-color)'
+                    }}>
+                      <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                        {locale === 'th' ? `หน้า ${pos + 1}` : `Page ${pos + 1}`}
+                      </span>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); setActivePagePos(pos); handleRotatePage('right'); }} 
+                        title="Rotate Page 90°"
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center', color: 'var(--brand-primary)' }}
+                      >
+                        <RotateCw size={14} />
+                      </button>
+                    </div>
+
                     {origIdx >= 0 ? (
                       <PdfPageRenderer 
                         arrayBuffer={currentFile} 

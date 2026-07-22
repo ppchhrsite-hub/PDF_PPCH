@@ -141,6 +141,54 @@ function hexToRgb(hex?: string) {
     : null;
 }
 
+function getRotatedCoords(
+  annX: number, 
+  annY: number, 
+  annW: number, 
+  annH: number, 
+  rawW: number, 
+  rawH: number, 
+  rotAngle: number
+) {
+  const normAngle = (rotAngle % 360 + 360) % 360;
+  
+  let visW = rawW;
+  let visH = rawH;
+  if (normAngle === 90 || normAngle === 270) {
+    visW = rawH;
+    visH = rawW;
+  }
+
+  const xVis = (annX / 100) * visW;
+  const yVis = (annY / 100) * visH;
+  const wVis = annW > 0 ? (annW / 100) * visW : 20;
+  const hVis = annH > 0 ? (annH / 100) * visH : 15;
+
+  let pdfX = xVis;
+  let pdfY = visH - yVis - hVis;
+  let pdfW = wVis;
+  let pdfH = hVis;
+
+  if (normAngle === 90) {
+    pdfX = yVis;
+    pdfY = rawH - xVis - wVis;
+    pdfW = hVis;
+    pdfH = wVis;
+  } else if (normAngle === 180) {
+    pdfX = rawW - xVis - wVis;
+    pdfY = yVis;
+    pdfW = wVis;
+    pdfH = hVis;
+  } else if (normAngle === 270) {
+    pdfX = rawW - yVis - hVis;
+    pdfY = xVis;
+    pdfW = hVis;
+    pdfH = wVis;
+  }
+
+  return { pdfX, pdfY, pdfW, pdfH };
+}
+
 /**
  * Apply all edits and annotations to a PDF using pdf-lib and return the new PDF ArrayBuffer
  */
@@ -193,12 +241,19 @@ export async function applyEditsToPdf(
     if (newPageIdx === undefined) continue;
 
     const page = pdfDoc.getPage(newPageIdx);
-    const { width: pageW, height: pageH } = page.getSize();
+    const rawW = page.getWidth();
+    const rawH = page.getHeight();
+    const rotAngle = page.getRotation().angle;
 
-    const pdfX = (ann.x / 100) * pageW;
-    const pdfY = (1 - ann.y / 100) * pageH;
-    const pdfW = ann.width && ann.width > 0 ? (ann.width / 100) * pageW : 20;
-    const pdfH = ann.height && ann.height > 0 ? (ann.height / 100) * pageH : 15;
+    const { pdfX, pdfY, pdfW, pdfH } = getRotatedCoords(
+      ann.x, 
+      ann.y, 
+      ann.width || 0, 
+      ann.height || 0, 
+      rawW, 
+      rawH, 
+      rotAngle
+    );
 
     const rgbColor = hexToRgb(ann.color);
     const rgbFill = hexToRgb(ann.fillColor);
@@ -300,9 +355,11 @@ export async function applyEditsToPdf(
           for (let pIdx = 0; pIdx < ann.points.length - 1; pIdx++) {
             const startPt = ann.points[pIdx];
             const endPt = ann.points[pIdx + 1];
+            const p1 = getRotatedCoords(startPt.x, startPt.y, 0, 0, rawW, rawH, rotAngle);
+            const p2 = getRotatedCoords(endPt.x, endPt.y, 0, 0, rawW, rawH, rotAngle);
             page.drawLine({
-              start: { x: (startPt.x / 100) * pageW, y: (1 - startPt.y / 100) * pageH },
-              end: { x: (endPt.x / 100) * pageW, y: (1 - endPt.y / 100) * pageH },
+              start: { x: p1.pdfX, y: p1.pdfY },
+              end: { x: p2.pdfX, y: p2.pdfY },
               color: freehandColor,
               thickness: ann.strokeWidth || 2,
               opacity: opacity,
