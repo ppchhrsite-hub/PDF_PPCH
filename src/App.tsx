@@ -1431,9 +1431,13 @@ export default function App() {
                     className={`workspace-page-card ${activePagePos === pos ? 'active' : ''}`}
                     onClick={() => setActivePagePos(pos)}
                     style={{
-                      aspectRatio: '595/842',
-                      width: `${(zoom / 100) * 595}px`,
-                      backgroundColor: 'white'
+                      position: 'relative',
+                      display: 'inline-block',
+                      backgroundColor: 'white',
+                      ...(origIdx < 0 ? {
+                        width: `${(zoom / 100) * 595}px`,
+                        height: `${(zoom / 100) * 842}px`,
+                      } : {})
                     }}
                   >
                     {origIdx >= 0 ? (

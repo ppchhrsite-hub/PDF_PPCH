@@ -50,7 +50,7 @@ export const PdfPageRenderer: React.FC<PdfPageRendererProps> = ({
         if (!active || !canvasRef.current) return;
 
         const scale = (zoom / 100) * 1.3;
-        const viewport = page.getViewport({ scale });
+        const viewport = page.getViewport({ scale, rotation });
         const context = canvasRef.current.getContext('2d');
         
         if (!context) {
@@ -109,7 +109,7 @@ export const PdfPageRenderer: React.FC<PdfPageRendererProps> = ({
   }, [arrayBuffer, pageIndex, zoom, rotation]);
 
   return (
-    <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+    <div style={{ position: 'relative', display: 'inline-block', lineHeight: 0 }}>
       {loading && (
         <div style={{
           position: 'absolute',
@@ -139,8 +139,7 @@ export const PdfPageRenderer: React.FC<PdfPageRendererProps> = ({
         ref={canvasRef} 
         className="pdf-page-canvas" 
         style={{
-          transform: `rotate(${rotation}deg)`,
-          transition: 'transform 0.2s ease',
+          display: 'block',
         }}
       />
     </div>
