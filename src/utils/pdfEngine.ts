@@ -50,12 +50,21 @@ export async function getPdfInfo(arrayBuffer: ArrayBuffer): Promise<DocumentInfo
   for (let i = 0; i < pdf.numPages; i++) {
     try {
       const page = await pdf.getPage(i + 1);
-      const viewport = page.getViewport({ scale: 1 });
-      if (viewport.width > viewport.height) {
-        initialRotations[i] = 90;
+      const intrinsicRotation = page.rotate || 0;
+      const offset = (360 - (intrinsicRotation % 360)) % 360;
+      
+      if (offset === 0) {
+        const viewport = page.getViewport({ scale: 1, rotation: 0 });
+        if (viewport.width > viewport.height) {
+          initialRotations[i] = 90;
+        } else {
+          initialRotations[i] = 0;
+        }
+      } else {
+        initialRotations[i] = offset;
       }
     } catch (e) {
-      // ignore
+      initialRotations[i] = 0;
     }
   }
 
