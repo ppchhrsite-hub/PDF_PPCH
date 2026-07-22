@@ -117,17 +117,28 @@ export async function renderPdfPage(
 /**
  * Convert Hex Color to PDF rgb Object
  */
-function hexToRgb(hex: string) {
-  const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-  const fullHex = hex.replace(shorthandRegex, (_, r, g, b) => r + r + g + g + b + b);
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex);
+function hexToRgb(hex?: string) {
+  if (!hex || hex === 'transparent' || hex === 'none' || hex === '') return null;
+  let cleanHex = hex.replace(/^#/, '').trim();
+  
+  if (cleanHex.length === 8) {
+    cleanHex = cleanHex.slice(0, 6);
+  }
+  if (cleanHex.length === 4) {
+    cleanHex = cleanHex.slice(0, 3);
+  }
+  
+  const shorthandRegex = /^([a-f\d])([a-f\d])([a-f\d])$/i;
+  cleanHex = cleanHex.replace(shorthandRegex, (_, r, g, b) => r + r + g + g + b + b);
+  const result = /^([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(cleanHex);
+  
   return result
     ? {
         r: parseInt(result[1], 16) / 255,
         g: parseInt(result[2], 16) / 255,
         b: parseInt(result[3], 16) / 255,
       }
-    : { r: 0, g: 0, b: 0 };
+    : null;
 }
 
 /**
@@ -186,22 +197,23 @@ export async function applyEditsToPdf(
 
     const pdfX = (ann.x / 100) * pageW;
     const pdfY = (1 - ann.y / 100) * pageH;
-    const pdfW = ann.width ? (ann.width / 100) * pageW : 0;
-    const pdfH = ann.height ? (ann.height / 100) * pageH : 0;
+    const pdfW = ann.width && ann.width > 0 ? (ann.width / 100) * pageW : 20;
+    const pdfH = ann.height && ann.height > 0 ? (ann.height / 100) * pageH : 15;
 
-    const rgbColor = hexToRgb(ann.color || '#000000');
-    const rgbFill = ann.fillColor ? hexToRgb(ann.fillColor) : null;
+    const rgbColor = hexToRgb(ann.color);
+    const rgbFill = hexToRgb(ann.fillColor);
     const opacity = ann.opacity ?? 1;
 
     switch (ann.type) {
       case 'text':
         if (ann.text) {
+          const textColor = rgbColor ? rgb(rgbColor.r, rgbColor.g, rgbColor.b) : rgb(0, 0, 0);
           page.drawText(ann.text, {
             x: pdfX,
             y: pdfY - (ann.fontSize || 12),
             size: ann.fontSize || 12,
             font: helveticaFont,
-            color: rgb(rgbColor.r, rgbColor.g, rgbColor.b),
+            color: textColor,
             opacity: opacity,
           });
         }
@@ -213,10 +225,21 @@ export async function applyEditsToPdf(
           y: pdfY - pdfH,
           width: pdfW,
           height: pdfH,
-          borderColor: rgb(rgbColor.r, rgbColor.g, rgbColor.b),
-          borderWidth: ann.strokeWidth || 1,
+          borderColor: rgbColor ? rgb(rgbColor.r, rgbColor.g, rgbColor.b) : undefined,
+          borderWidth: rgbColor ? (ann.strokeWidth || 1) : 0,
           color: rgbFill ? rgb(rgbFill.r, rgbFill.g, rgbFill.b) : undefined,
           opacity: opacity,
+        });
+        break;
+
+      case 'redact':
+        page.drawRectangle({
+          x: pdfX,
+          y: pdfY - pdfH,
+          width: pdfW,
+          height: pdfH,
+          color: rgbFill ? rgb(rgbFill.r, rgbFill.g, rgbFill.b) : rgb(0, 0, 0),
+          opacity: 1,
         });
         break;
 
@@ -227,8 +250,8 @@ export async function applyEditsToPdf(
           y: pdfY - radius,
           xScale: radius,
           yScale: radius,
-          borderColor: rgb(rgbColor.r, rgbColor.g, rgbColor.b),
-          borderWidth: ann.strokeWidth || 1,
+          borderColor: rgbColor ? rgb(rgbColor.r, rgbColor.g, rgbColor.b) : undefined,
+          borderWidth: rgbColor ? (ann.strokeWidth || 1) : 0,
           color: rgbFill ? rgb(rgbFill.r, rgbFill.g, rgbFill.b) : undefined,
           opacity: opacity,
         });
@@ -239,10 +262,11 @@ export async function applyEditsToPdf(
         const y1 = pdfY;
         const x2 = pdfX + pdfW;
         const y2 = pdfY - pdfH;
+        const arrowColor = rgbColor ? rgb(rgbColor.r, rgbColor.g, rgbColor.b) : rgb(0, 0, 0);
         page.drawLine({
           start: { x: x1, y: y1 },
           end: { x: x2, y: y2 },
-          color: rgb(rgbColor.r, rgbColor.g, rgbColor.b),
+          color: arrowColor,
           thickness: ann.strokeWidth || 2,
           opacity: opacity,
         });
@@ -254,7 +278,7 @@ export async function applyEditsToPdf(
             x: x2 - wingLength * Math.cos(angle - Math.PI / 6),
             y: y2 - wingLength * Math.sin(angle - Math.PI / 6),
           },
-          color: rgb(rgbColor.r, rgbColor.g, rgbColor.b),
+          color: arrowColor,
           thickness: ann.strokeWidth || 2,
           opacity: opacity,
         });
@@ -264,7 +288,7 @@ export async function applyEditsToPdf(
             x: x2 - wingLength * Math.cos(angle + Math.PI / 6),
             y: y2 - wingLength * Math.sin(angle + Math.PI / 6),
           },
-          color: rgb(rgbColor.r, rgbColor.g, rgbColor.b),
+          color: arrowColor,
           thickness: ann.strokeWidth || 2,
           opacity: opacity,
         });
@@ -272,13 +296,14 @@ export async function applyEditsToPdf(
 
       case 'freehand':
         if (ann.points && ann.points.length > 1) {
+          const freehandColor = rgbColor ? rgb(rgbColor.r, rgbColor.g, rgbColor.b) : rgb(0, 0, 0);
           for (let pIdx = 0; pIdx < ann.points.length - 1; pIdx++) {
             const startPt = ann.points[pIdx];
             const endPt = ann.points[pIdx + 1];
             page.drawLine({
               start: { x: (startPt.x / 100) * pageW, y: (1 - startPt.y / 100) * pageH },
               end: { x: (endPt.x / 100) * pageW, y: (1 - endPt.y / 100) * pageH },
-              color: rgb(rgbColor.r, rgbColor.g, rgbColor.b),
+              color: freehandColor,
               thickness: ann.strokeWidth || 2,
               opacity: opacity,
             });

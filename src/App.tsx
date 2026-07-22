@@ -1786,6 +1786,17 @@ export default function App() {
                       </button>
                     </div>
 
+                    {selectedAnn.type === 'rect' && (
+                      <button 
+                        className="btn-primary" 
+                        style={{ padding: '6px 12px', fontSize: '11px', backgroundColor: '#ffffff', color: '#0f172a', border: '1px solid #cbd5e1', boxShadow: 'var(--shadow-sm)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+                        onClick={() => updateSelectedAnnotation({ fillColor: '#ffffff', opacity: 1 })}
+                      >
+                        <span>⬜</span>
+                        <span>{locale === 'th' ? 'ถมสีพื้นหลังขาว (ปิดข้อความ)' : 'Solid White Fill (Cover Text)'}</span>
+                      </button>
+                    )}
+
                     {/* Border Color */}
                     <div className="inspector-group">
                       <span className="inspector-label">{locale === 'th' ? 'สีเส้นขอบ (Border Color)' : 'Border Color'}</span>
@@ -1818,11 +1829,11 @@ export default function App() {
                           onClick={() => updateSelectedAnnotation({ fillColor: 'transparent' })}
                           title="Transparent"
                         />
-                        {['#ff005533', '#0077ff33', '#00ff7733', '#ffb70033', '#ffffff88', '#00000088'].map(c => (
+                        {['#ffffff', '#ff005533', '#0077ff33', '#00ff7733', '#ffb70033', '#00000088'].map(c => (
                           <button 
                             key={c}
                             className={`color-swatch ${selectedAnn.fillColor === c ? 'active' : ''}`}
-                            style={{ backgroundColor: c }}
+                            style={{ backgroundColor: c, border: c === '#ffffff' ? '1px solid #ccc' : 'none' }}
                             onClick={() => updateSelectedAnnotation({ fillColor: c })}
                           />
                         ))}
